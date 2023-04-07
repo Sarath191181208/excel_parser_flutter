@@ -18,7 +18,8 @@ List<Data?> selectColumn({required CellIndex rowIndex, required Sheet sheet}) {
   return rowData;
 }
 
-Tuple2<NameCellIndexMap, List<CellError>> getColumnIdsFromNames(Sheet sheet) {
+Tuple2<CellNameAndIndexMap, List<CellError>> getColumnIdsFromNames(
+    Sheet sheet) {
   Map<String, CellIndex> columnIds = {};
   List<CellError> errors = [];
 
@@ -34,11 +35,11 @@ Tuple2<NameCellIndexMap, List<CellError>> getColumnIdsFromNames(Sheet sheet) {
       columnIds[headerName.toString()] = cell.cellIndex;
     }
   }
-  return Tuple2.fromList([NameCellIndexMap(columnIds), errors]);
+  return Tuple2.fromList([CellNameAndIndexMap(columnIds), errors]);
 }
 
 CellErrorsWarnings applyValidators(HeaderNamesList header, Sheet sheet,
-    NameCellIndexMap map, List<ValidatorFunction> validators) {
+    CellNameAndIndexMap map, List<ValidatorFunction> validators) {
   List<CellError> errors = [];
   List<CellWarning> warnings = [];
   for (Function validator in validators) {
@@ -50,21 +51,21 @@ CellErrorsWarnings applyValidators(HeaderNamesList header, Sheet sheet,
 }
 
 CellErrorsWarnings validateRepetitionsForRow(
-    HeaderNamesList header, Sheet sheet, NameCellIndexMap map) {
+    HeaderNamesList header, Sheet sheet, CellNameAndIndexMap map) {
   CellIndex headerIndex = map.findHeader(header)!;
   List<Data?> headerColumn = selectColumn(rowIndex: headerIndex, sheet: sheet);
   return checkRepeatedElements(headerIndex, headerColumn, header.fieldName);
 }
 
 CellErrorsWarnings validateEmptyElementsForRow(
-    HeaderNamesList header, Sheet sheet, NameCellIndexMap map) {
+    HeaderNamesList header, Sheet sheet, CellNameAndIndexMap map) {
   CellIndex headerIndex = map.findHeader(header)!;
   List<Data?> headerColumn = selectColumn(rowIndex: headerIndex, sheet: sheet);
   return checkEmptyElements(headerIndex, headerColumn, header.fieldName);
 }
 
 CellErrorsWarnings areRowItemsinList(
-    HeaderNamesList header, Sheet sheet, NameCellIndexMap map,
+    HeaderNamesList header, Sheet sheet, CellNameAndIndexMap map,
     {required List<String> list}) {
   CellIndex headerIndex = map.findHeader(header)!;
   List<Data?> headerColumn = selectColumn(rowIndex: headerIndex, sheet: sheet);

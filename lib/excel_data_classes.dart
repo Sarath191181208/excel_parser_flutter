@@ -10,7 +10,7 @@ var emailHeader = HeaderNamesList(
 var departmentHeader =
     HeaderNamesList("Department", ['department', 'dept', 'department name']);
 var employeeHeader =
-    HeaderNamesList("Employee Id", ['Employee Id', 'emp id', 'empid']);
+    HeaderNamesList("Employee Id", ['employee id', 'emp id', 'empid']);
 
 List<HeaderNamesList> compulsaryHeaders = [
   nameHeader,
@@ -18,13 +18,14 @@ List<HeaderNamesList> compulsaryHeaders = [
   departmentHeader,
   employeeHeader
 ];
+
 typedef CellErrorsWarnings = Tuple2<List<CellError>, List<CellWarning>>;
 typedef ValidatorFunction = CellErrorsWarnings Function(
-    HeaderNamesList, Sheet, NameCellIndexMap);
+    HeaderNamesList, Sheet, CellNameAndIndexMap);
 
-class NameCellIndexMap {
+class CellNameAndIndexMap {
   late Map<String, CellIndex> map;
-  NameCellIndexMap(Map<String, CellIndex> map) {
+  CellNameAndIndexMap(Map<String, CellIndex> map) {
     this.map =
         map.map((key, value) => MapEntry(key.toLowerCase().trim(), value));
   }
@@ -45,12 +46,11 @@ class NameCellIndexMap {
 }
 
 class HeaderNamesList {
-  String fieldName;
-  List<String> headers = [];
-  HeaderNamesList(
-    this.fieldName,
-    this.headers,
-  );
+  final String fieldName;
+  final List<String> headers = [];
+  HeaderNamesList(this.fieldName, List<String> headers) {
+    this.headers.addAll(headers.map(((e) => e.toLowerCase().trim())));
+  }
 
   bool contains(String header) {
     return headers.contains(header);

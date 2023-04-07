@@ -72,7 +72,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   List<CellError> checkSheetHeaders(
-      Sheet sheet, List<HeaderNamesList> headers, NameCellIndexMap map) {
+      Sheet sheet, List<HeaderNamesList> headers, CellNameAndIndexMap map) {
     List<CellError> errors = [];
     for (HeaderNamesList header in headers) {
       CellIndex? index = map.findHeader(header);
@@ -96,7 +96,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
     // get the cell indices of the names column
     var res = getColumnIdsFromNames(sheet2);
-    NameCellIndexMap map = res.item1;
+    CellNameAndIndexMap map = res.item1;
     List<CellError> headerErrors = res.item2;
 
     if (headerErrors.isNotEmpty) {
@@ -120,7 +120,7 @@ class _MyHomePageState extends State<MyHomePage> {
       validateEmptyElementsForRow,
     ];
     List<ValidatorFunction> deptValidators = [
-      (HeaderNamesList h, Sheet s, NameCellIndexMap map) =>
+      (HeaderNamesList h, Sheet s, CellNameAndIndexMap map) =>
           areRowItemsinList(h, s, map, list: widget.departments)
     ];
 
@@ -187,7 +187,7 @@ class _MyHomePageState extends State<MyHomePage> {
               SizedBox(height: screenHeight * 0.20),
               ElevatedButton(
                 onPressed: testExcelSave,
-                child: const Text('Test Excel Save'),
+                child: const Text('Download Text Excel File'),
               ),
               ElevatedButton(
                 onPressed: selectAndReadFile,
