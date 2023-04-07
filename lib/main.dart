@@ -68,7 +68,7 @@ class _MyHomePageState extends State<MyHomePage> {
     }
 
     Uint8List data = Uint8List.fromList(bytes);
-    // writeFileToDownloads(data, dir, 'test.xlsx');
+    writeFileToDownloads(data, dir, 'test.xlsx');
   }
 
   List<CellError> checkSheetHeaders(
