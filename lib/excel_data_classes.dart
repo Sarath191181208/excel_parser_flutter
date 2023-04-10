@@ -21,7 +21,7 @@ List<HeaderName> compulsaryHeaders = [
 
 typedef CellErrorsWarnings = Tuple2<List<CellError>, List<CellWarning>>;
 typedef ValidatorFunction = CellErrorsWarnings Function(
-    RowHeaderComaparable, Sheet, CellNameAndIndexMap);
+    RowHeaderComparable, Sheet, CellNameAndIndexMap);
 
 class CellNameAndIndexMap {
   late Map<String, CellIndex> map;
@@ -30,7 +30,7 @@ class CellNameAndIndexMap {
         map.map((key, value) => MapEntry(key.toLowerCase().trim(), value));
   }
 
-  CellIndex? findHeader(RowHeaderComaparable headerNames) {
+  CellIndex? findHeader(RowHeaderComparable headerNames) {
     for (String key in map.keys) {
       if (headerNames.containsRowHeader(key)) {
         return map[key];
@@ -39,17 +39,17 @@ class CellNameAndIndexMap {
     return null;
   }
 
-  bool contains(RowHeaderComaparable headerNames) {
+  bool contains(RowHeaderComparable headerNames) {
     return findHeader(headerNames) != null;
   }
 }
 
-abstract class RowHeaderComaparable {
+abstract class RowHeaderComparable {
   bool containsRowHeader(String header);
   String get fieldName;
 }
 
-class HeaderName implements RowHeaderComaparable {
+class HeaderName implements RowHeaderComparable {
   @override
   final String fieldName;
   final List<String> headers = [];
@@ -63,14 +63,14 @@ class HeaderName implements RowHeaderComaparable {
   }
 }
 
-class TimeHeaderName implements RowHeaderComaparable {
+class TimeHeaderName implements RowHeaderComparable {
   @override
   final String fieldName;
 
   TimeHeaderName(this.fieldName) {
     // check if the header is of format Shift{1-20} [start|end]
-    RegExp regExp = RegExp(r"Shift(\d{1,4}) (start|end)");
-    var match = regExp.firstMatch(fieldName);
+    RegExp regExp = RegExp(r"shift(\d{1,4}) (start|end)");
+    var match = regExp.firstMatch(fieldName.toLowerCase());
     if (match == null) {
       throw Exception(
           "Invalid header name: $fieldName. Expected format: Shift{1-20} [start|end]");
@@ -79,6 +79,6 @@ class TimeHeaderName implements RowHeaderComaparable {
 
   @override
   bool containsRowHeader(String header) {
-    return header.toLowerCase() == fieldName;
+    return header.toLowerCase() == fieldName.toLowerCase();
   }
 }

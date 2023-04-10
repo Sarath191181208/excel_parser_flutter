@@ -92,10 +92,10 @@ class _MyHomePageState extends State<MyHomePage> {
     writeFileToDownloads(data, dir, 'test.xlsx');
   }
 
-  List<CellError> checkSheetHeaders(Sheet sheet,
-      List<RowHeaderComaparable> headers, CellNameAndIndexMap map) {
+  List<CellError> checkSheetHeaders(
+      Sheet sheet, List<RowHeaderComparable> headers, CellNameAndIndexMap map) {
     List<CellError> errors = [];
-    for (RowHeaderComaparable header in headers) {
+    for (RowHeaderComparable header in headers) {
       CellIndex? index = map.findHeader(header);
       if (index == null) {
         errors.add(CellError('Header "${header.fieldName}" not found',
@@ -116,7 +116,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
     // get the cell indices of the names column
     var res = getColumnIdsFromNames(sheet2);
-    CellNameAndIndexMap map = res.item1;
+    CellNameAndIndexMap rowHeaderCellIndexMap = res.item1;
     List<CellError> headerErrors = res.item2;
 
     if (headerErrors.isNotEmpty) {
@@ -126,8 +126,8 @@ class _MyHomePageState extends State<MyHomePage> {
     }
 
     // validating if all the headers are defined
-    List<CellError> areAllHeadersDefined = checkSheetHeaders(
-        sheet2, [...compulsaryHeaders, ...widget.shiftHeaders], map);
+    List<CellError> areAllHeadersDefined = checkSheetHeaders(sheet2,
+        [...compulsaryHeaders, ...widget.shiftHeaders], rowHeaderCellIndexMap);
 
     if (areAllHeadersDefined.isNotEmpty) {
       log("Errors in are, All headers defined: ");
@@ -140,29 +140,41 @@ class _MyHomePageState extends State<MyHomePage> {
       validateEmptyElementsForRow,
     ];
     List<ValidatorFunction> deptValidators = [
-      (RowHeaderComaparable h, Sheet s, CellNameAndIndexMap map) =>
+      (RowHeaderComparable h, Sheet s, CellNameAndIndexMap map) =>
           areRowItemsinList(h, s, map, list: widget.departments)
     ];
 
-    // check if the name column has any repeated elements and empty elements
-    var nameErrorsAndWarnings =
-        applyValidators(nameHeader, sheet2, map, validators);
-    var emailErrorsAndWarnings =
-        applyValidators(emailHeader, sheet2, map, validators);
-    var employeeErrosAndWarnings =
-        applyValidators(employeeHeader, sheet2, map, validators);
-    var departmentErrorsAndWarnings =
-        applyValidators(departmentHeader, sheet2, map, deptValidators);
+    List<ValidatorFunction> shiftValidators = [
+      validateEmptyElementsForRow,
+      (RowHeaderComparable h, Sheet s, CellNameAndIndexMap map) =>
+          validateTimeFormat(h, s, map)
+    ];
 
-    showErrorsAndWarnings(nameErrorsAndWarnings, 'Name');
-    showErrorsAndWarnings(emailErrorsAndWarnings, 'Email/Phone');
-    showErrorsAndWarnings(departmentErrorsAndWarnings, 'Department');
+    runValidator(RowHeaderComparable h, List<ValidatorFunction> v) =>
+        applyValidators(h, sheet2, rowHeaderCellIndexMap, v);
+
+    // check if the name column has any repeated elements and empty elements
+    var nameErrorsAndWarnings = runValidator(nameHeader, validators);
+    var emailErrorsAndWarnings = runValidator(emailHeader, validators);
+    var employeeErrosAndWarnings = runValidator(employeeHeader, validators);
+    var departmentErrorsAndWarnings =
+        runValidator(departmentHeader, deptValidators);
+
+    List<CellErrorsWarnings> shiftErrorsAndWarnings = [];
+    for (TimeHeaderName header in widget.shiftHeaders) {
+      shiftErrorsAndWarnings.add(runValidator(header, shiftValidators));
+    }
+
+    // showErrorsAndWarnings(nameErrorsAndWarnings, 'Name');
+    // showErrorsAndWarnings(emailErrorsAndWarnings, 'Email/Phone');
+    // showErrorsAndWarnings(departmentErrorsAndWarnings, 'Department');
 
     return mergeErrorsAndWarnings([
       nameErrorsAndWarnings,
       emailErrorsAndWarnings,
       employeeErrosAndWarnings,
       departmentErrorsAndWarnings,
+      ...shiftErrorsAndWarnings
     ]);
   }
 
