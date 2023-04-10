@@ -38,7 +38,7 @@ Tuple2<CellNameAndIndexMap, List<CellError>> getColumnIdsFromNames(
   return Tuple2.fromList([CellNameAndIndexMap(columnIds), errors]);
 }
 
-CellErrorsWarnings applyValidators(HeaderNamesList header, Sheet sheet,
+CellErrorsWarnings applyValidators(HeaderName header, Sheet sheet,
     CellNameAndIndexMap map, List<ValidatorFunction> validators) {
   List<CellError> errors = [];
   List<CellWarning> warnings = [];
@@ -51,21 +51,21 @@ CellErrorsWarnings applyValidators(HeaderNamesList header, Sheet sheet,
 }
 
 CellErrorsWarnings validateRepetitionsForRow(
-    HeaderNamesList header, Sheet sheet, CellNameAndIndexMap map) {
+    RowHeaderComaparable header, Sheet sheet, CellNameAndIndexMap map) {
   CellIndex headerIndex = map.findHeader(header)!;
   List<Data?> headerColumn = selectColumn(rowIndex: headerIndex, sheet: sheet);
   return checkRepeatedElements(headerIndex, headerColumn, header.fieldName);
 }
 
 CellErrorsWarnings validateEmptyElementsForRow(
-    HeaderNamesList header, Sheet sheet, CellNameAndIndexMap map) {
+    RowHeaderComaparable header, Sheet sheet, CellNameAndIndexMap map) {
   CellIndex headerIndex = map.findHeader(header)!;
   List<Data?> headerColumn = selectColumn(rowIndex: headerIndex, sheet: sheet);
   return checkEmptyElements(headerIndex, headerColumn, header.fieldName);
 }
 
 CellErrorsWarnings areRowItemsinList(
-    HeaderNamesList header, Sheet sheet, CellNameAndIndexMap map,
+    RowHeaderComaparable header, Sheet sheet, CellNameAndIndexMap map,
     {required List<String> list}) {
   CellIndex headerIndex = map.findHeader(header)!;
   List<Data?> headerColumn = selectColumn(rowIndex: headerIndex, sheet: sheet);

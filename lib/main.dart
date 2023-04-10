@@ -25,28 +25,49 @@ Future<void> clearTemporaryFiles() async {
   dir.create(); // This will create the temporary directory again. So temporary files will only be deleted
 }
 
+List<TimeHeaderName> buildHeaderFromStr(List<String> name) {
+  return name.map((e) => TimeHeaderName(e)).toList();
+}
+
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: const MyHomePage(
-          title: 'Flutter Demo Home Page',
-          departments: ['IT', 'HR', 'Finance', 'Marketing', 'Sales', 'Admin']),
-    );
+        title: 'Flutter Demo',
+        theme: ThemeData(
+          primarySwatch: Colors.blue,
+        ),
+        home: MyHomePage(
+            title: 'Flutter Demo Home Page',
+            departments: const [
+              'IT',
+              'HR',
+              'Finance',
+              'Marketing',
+              'Sales',
+              'Admin'
+            ],
+            shiftHeaders: buildHeaderFromStr([
+              "Shift1 Start",
+              "Shift1 End",
+              "Shift2 Start",
+              "Shift2 End",
+            ])));
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title, required this.departments});
+  const MyHomePage(
+      {super.key,
+      required this.title,
+      required this.departments,
+      required this.shiftHeaders});
 
   final String title;
   final List<String> departments;
+  final List<TimeHeaderName> shiftHeaders;
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
@@ -71,12 +92,11 @@ class _MyHomePageState extends State<MyHomePage> {
     writeFileToDownloads(data, dir, 'test.xlsx');
   }
 
-  List<CellError> checkSheetHeaders(
-      Sheet sheet, List<HeaderNamesList> headers, CellNameAndIndexMap map) {
+  List<CellError> checkSheetHeaders(Sheet sheet,
+      List<RowHeaderComaparable> headers, CellNameAndIndexMap map) {
     List<CellError> errors = [];
-    for (HeaderNamesList header in headers) {
+    for (RowHeaderComaparable header in headers) {
       CellIndex? index = map.findHeader(header);
-      print(CellIndex);
       if (index == null) {
         errors.add(CellError('Header "${header.fieldName}" not found',
             CellIndex.indexByString('A1')));
@@ -106,11 +126,11 @@ class _MyHomePageState extends State<MyHomePage> {
     }
 
     // validating if all the headers are defined
-    List<CellError> areAllHeadersDefined =
-        checkSheetHeaders(sheet2, compulsaryHeaders, map);
+    List<CellError> areAllHeadersDefined = checkSheetHeaders(
+        sheet2, [...compulsaryHeaders, ...widget.shiftHeaders], map);
 
     if (areAllHeadersDefined.isNotEmpty) {
-      log("Errors in are all headers defined: ");
+      log("Errors in are, All headers defined: ");
       log(areAllHeadersDefined.toString());
       return Tuple2(areAllHeadersDefined, []);
     }
@@ -120,7 +140,7 @@ class _MyHomePageState extends State<MyHomePage> {
       validateEmptyElementsForRow,
     ];
     List<ValidatorFunction> deptValidators = [
-      (HeaderNamesList h, Sheet s, CellNameAndIndexMap map) =>
+      (RowHeaderComaparable h, Sheet s, CellNameAndIndexMap map) =>
           areRowItemsinList(h, s, map, list: widget.departments)
     ];
 

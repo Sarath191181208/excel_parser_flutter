@@ -3,16 +3,16 @@ import 'package:tuple/tuple.dart';
 
 import 'cell_exceptions.dart';
 
-var nameHeader = HeaderNamesList(
+var nameHeader = HeaderName(
     "Name", ['name', 'employee name', 'emp name', 'employee', 'full name']);
-var emailHeader = HeaderNamesList(
+var emailHeader = HeaderName(
     "Email", ['email', 'phone', 'email/phone', 'email id / phone no']);
 var departmentHeader =
-    HeaderNamesList("Department", ['department', 'dept', 'department name']);
+    HeaderName("Department", ['department', 'dept', 'department name']);
 var employeeHeader =
-    HeaderNamesList("Employee Id", ['employee id', 'emp id', 'empid']);
+    HeaderName("Employee Id", ['employee id', 'emp id', 'empid']);
 
-List<HeaderNamesList> compulsaryHeaders = [
+List<HeaderName> compulsaryHeaders = [
   nameHeader,
   emailHeader,
   departmentHeader,
@@ -21,7 +21,7 @@ List<HeaderNamesList> compulsaryHeaders = [
 
 typedef CellErrorsWarnings = Tuple2<List<CellError>, List<CellWarning>>;
 typedef ValidatorFunction = CellErrorsWarnings Function(
-    HeaderNamesList, Sheet, CellNameAndIndexMap);
+    RowHeaderComaparable, Sheet, CellNameAndIndexMap);
 
 class CellNameAndIndexMap {
   late Map<String, CellIndex> map;
@@ -30,29 +30,55 @@ class CellNameAndIndexMap {
         map.map((key, value) => MapEntry(key.toLowerCase().trim(), value));
   }
 
-  CellIndex? findHeader(HeaderNamesList headerNames) {
-    for (String header in headerNames.headers) {
-      String headerName = header.toLowerCase().trim();
-      if (map.containsKey(headerName)) {
-        return map[header];
+  CellIndex? findHeader(RowHeaderComaparable headerNames) {
+    for (String key in map.keys) {
+      if (headerNames.containsRowHeader(key)) {
+        return map[key];
       }
     }
     return null;
   }
 
-  bool contains(HeaderNamesList headerNames) {
+  bool contains(RowHeaderComaparable headerNames) {
     return findHeader(headerNames) != null;
   }
 }
 
-class HeaderNamesList {
+abstract class RowHeaderComaparable {
+  bool containsRowHeader(String header);
+  String get fieldName;
+}
+
+class HeaderName implements RowHeaderComaparable {
+  @override
   final String fieldName;
   final List<String> headers = [];
-  HeaderNamesList(this.fieldName, List<String> headers) {
+  HeaderName(this.fieldName, List<String> headers) {
     this.headers.addAll(headers.map(((e) => e.toLowerCase().trim())));
   }
 
-  bool contains(String header) {
+  @override
+  bool containsRowHeader(String header) {
     return headers.contains(header);
+  }
+}
+
+class TimeHeaderName implements RowHeaderComaparable {
+  @override
+  final String fieldName;
+
+  TimeHeaderName(this.fieldName) {
+    // check if the header is of format Shift{1-20} [start|end]
+    RegExp regExp = RegExp(r"Shift(\d{1,4}) (start|end)");
+    var match = regExp.firstMatch(fieldName);
+    if (match == null) {
+      throw Exception(
+          "Invalid header name: $fieldName. Expected format: Shift{1-20} [start|end]");
+    }
+  }
+
+  @override
+  bool containsRowHeader(String header) {
+    return header.toLowerCase() == fieldName;
   }
 }
