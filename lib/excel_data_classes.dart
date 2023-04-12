@@ -21,7 +21,7 @@ List<HeaderName> compulsaryHeaders = [
 
 typedef CellErrorsWarnings = Tuple2<List<CellError>, List<CellWarning>>;
 typedef ValidatorFunction = CellErrorsWarnings Function(
-    RowHeaderComparable, Sheet, CellNameAndIndexMap);
+    CellIndex, List<Data?>, String);
 
 class CellNameAndIndexMap {
   late Map<String, CellIndex> map;

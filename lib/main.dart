@@ -14,6 +14,7 @@ import 'package:tuple/tuple.dart';
 import 'cell_exceptions.dart';
 import 'excel_data_classes.dart';
 import 'excel_logic.dart';
+import 'excel_validators.dart';
 
 void main() {
   runApp(const MyApp());
@@ -136,18 +137,17 @@ class _MyHomePageState extends State<MyHomePage> {
     }
 
     List<ValidatorFunction> validators = [
-      validateRepetitionsForRow,
-      validateEmptyElementsForRow,
+      checkRepeatedElements,
+      checkEmptyElements,
     ];
     List<ValidatorFunction> deptValidators = [
-      (RowHeaderComparable h, Sheet s, CellNameAndIndexMap map) =>
-          areRowItemsinList(h, s, map, list: widget.departments)
+      (CellIndex c, List<Data?> d, String name) =>
+          checkIfElementsInList(c, d, name, widget.departments)
     ];
 
     List<ValidatorFunction> shiftValidators = [
-      validateEmptyElementsForRow,
-      (RowHeaderComparable h, Sheet s, CellNameAndIndexMap map) =>
-          validateTimeFormat(h, s, map)
+      checkEmptyElements,
+      checkTimeFormat
     ];
 
     runValidator(RowHeaderComparable h, List<ValidatorFunction> v) =>

@@ -42,42 +42,16 @@ CellErrorsWarnings applyValidators(RowHeaderComparable header, Sheet sheet,
     CellNameAndIndexMap map, List<ValidatorFunction> validators) {
   List<CellError> errors = [];
   List<CellWarning> warnings = [];
-  for (Function validator in validators) {
-    CellErrorsWarnings result = validator(header, sheet, map);
+  for (ValidatorFunction validator in validators) {
+    CellIndex headerIndex = map.findHeader(header)!;
+    List<Data?> headerColumn =
+        selectColumn(rowIndex: headerIndex, sheet: sheet);
+    CellErrorsWarnings result =
+        validator(headerIndex, headerColumn, header.fieldName);
     errors.addAll(result.item1);
     warnings.addAll(result.item2);
   }
   return Tuple2(errors, warnings);
-}
-
-CellErrorsWarnings validateRepetitionsForRow(
-    RowHeaderComparable header, Sheet sheet, CellNameAndIndexMap map) {
-  CellIndex headerIndex = map.findHeader(header)!;
-  List<Data?> headerColumn = selectColumn(rowIndex: headerIndex, sheet: sheet);
-  return checkRepeatedElements(headerIndex, headerColumn, header.fieldName);
-}
-
-CellErrorsWarnings validateEmptyElementsForRow(
-    RowHeaderComparable header, Sheet sheet, CellNameAndIndexMap map) {
-  CellIndex headerIndex = map.findHeader(header)!;
-  List<Data?> headerColumn = selectColumn(rowIndex: headerIndex, sheet: sheet);
-  return checkEmptyElements(headerIndex, headerColumn, header.fieldName);
-}
-
-CellErrorsWarnings areRowItemsinList(
-    RowHeaderComparable header, Sheet sheet, CellNameAndIndexMap map,
-    {required List<String> list}) {
-  CellIndex headerIndex = map.findHeader(header)!;
-  List<Data?> headerColumn = selectColumn(rowIndex: headerIndex, sheet: sheet);
-  return checkIfElementsInList(
-      headerIndex, headerColumn, header.fieldName, list);
-}
-
-CellErrorsWarnings validateTimeFormat(
-    RowHeaderComparable header, Sheet sheet, CellNameAndIndexMap map) {
-  CellIndex headerIndex = map.findHeader(header)!;
-  List<Data?> headerColumn = selectColumn(rowIndex: headerIndex, sheet: sheet);
-  return checkTimeFormat(headerIndex, headerColumn, header.fieldName);
 }
 
 void createColumnNames(Sheet sheet) {
