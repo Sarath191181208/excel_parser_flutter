@@ -23,6 +23,8 @@ typedef CellErrorsWarnings = Tuple2<List<CellError>, List<CellWarning>>;
 typedef ValidatorFunction = CellErrorsWarnings Function(
     CellIndex, List<Data?>, String);
 
+typedef StartEndTimesTuple = Tuple2<TimeHeaderName?, TimeHeaderName?>;
+
 class CellNameAndIndexMap {
   late Map<String, CellIndex> map;
   CellNameAndIndexMap(Map<String, CellIndex> map) {

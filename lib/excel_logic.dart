@@ -54,6 +54,25 @@ CellErrorsWarnings applyValidators(RowHeaderComparable header, Sheet sheet,
   return Tuple2(errors, warnings);
 }
 
+Map<int, StartEndTimesTuple> getGroupedStartEndTimes(
+    List<TimeHeaderName> shiftHeaders) {
+  Map<int, StartEndTimesTuple> groupedShiftHeadersMap = {};
+  for (TimeHeaderName header in shiftHeaders) {
+    int shiftNumber = header.shiftNumber;
+    if (!groupedShiftHeadersMap.containsKey(shiftNumber)) {
+      groupedShiftHeadersMap[shiftNumber] = const Tuple2(null, null);
+    }
+    if (header.isStartHeader) {
+      groupedShiftHeadersMap[shiftNumber] =
+          Tuple2(header, groupedShiftHeadersMap[shiftNumber]!.item2);
+    } else {
+      groupedShiftHeadersMap[shiftNumber] =
+          Tuple2(groupedShiftHeadersMap[shiftNumber]!.item1, header);
+    }
+  }
+  return groupedShiftHeadersMap;
+}
+
 void createColumnNames(Sheet sheet) {
   // create a name column
   sheet.cell(CellIndex.indexByString('A1')).value = 'Name';

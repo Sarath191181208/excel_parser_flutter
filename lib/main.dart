@@ -16,8 +16,6 @@ import 'excel_data_classes.dart';
 import 'excel_logic.dart';
 import 'excel_validators.dart';
 
-typedef startEndTimesTuple = Tuple2<TimeHeaderName?, TimeHeaderName?>;
-
 void main() {
   runApp(const MyApp());
 }
@@ -167,27 +165,13 @@ class _MyHomePageState extends State<MyHomePage> {
       shiftErrorsAndWarnings.add(runValidator(header, shiftValidators));
     }
 
-    // group the start and end times together
-    Map<int, startEndTimesTuple> groupedShiftHeadersMap = {};
-    for (TimeHeaderName header in widget.shiftHeaders) {
-      int shiftNumber = header.shiftNumber;
-      if (!groupedShiftHeadersMap.containsKey(shiftNumber)) {
-        groupedShiftHeadersMap[shiftNumber] = const Tuple2(null, null);
-      }
-      if (header.isStartHeader) {
-        groupedShiftHeadersMap[shiftNumber] =
-            Tuple2(header, groupedShiftHeadersMap[shiftNumber]!.item2);
-      } else {
-        groupedShiftHeadersMap[shiftNumber] =
-            Tuple2(groupedShiftHeadersMap[shiftNumber]!.item1, header);
-      }
-    }
+    var groupedShiftHeadersMap = getGroupedStartEndTimes(widget.shiftHeaders);
 
     List<CellError> errors = [];
     List<CellWarning> warnings = [];
     // check if the start time is before the end time
     for (int key in groupedShiftHeadersMap.keys) {
-      startEndTimesTuple tuple = groupedShiftHeadersMap[key]!;
+      StartEndTimesTuple tuple = groupedShiftHeadersMap[key]!;
       TimeHeaderName? startTimeHeader = tuple.item1;
       TimeHeaderName? endTimeHeader = tuple.item2;
       if (startTimeHeader == null) {
