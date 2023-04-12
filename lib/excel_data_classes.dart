@@ -77,6 +77,17 @@ class TimeHeaderName implements RowHeaderComparable {
     }
   }
 
+  bool get isStartHeader => fieldName.toLowerCase().contains("start");
+  int get shiftNumber {
+    RegExp regExp = RegExp(r"shift(\d{1,4}) (start|end)");
+    var match = regExp.firstMatch(fieldName.toLowerCase());
+    if (match == null) {
+      throw Exception(
+          "Invalid header name: $fieldName. Expected format: Shift{1-20} [start|end]");
+    }
+    return int.parse(match.group(1)!);
+  }
+
   @override
   bool containsRowHeader(String header) {
     return header.toLowerCase() == fieldName.toLowerCase();

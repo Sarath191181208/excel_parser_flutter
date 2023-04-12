@@ -16,6 +16,8 @@ import 'excel_data_classes.dart';
 import 'excel_logic.dart';
 import 'excel_validators.dart';
 
+typedef startEndTimesTuple = Tuple2<TimeHeaderName?, TimeHeaderName?>;
+
 void main() {
   runApp(const MyApp());
 }
@@ -164,6 +166,55 @@ class _MyHomePageState extends State<MyHomePage> {
     for (TimeHeaderName header in widget.shiftHeaders) {
       shiftErrorsAndWarnings.add(runValidator(header, shiftValidators));
     }
+
+    // group the start and end times together
+    Map<int, startEndTimesTuple> groupedShiftHeadersMap = {};
+    for (TimeHeaderName header in widget.shiftHeaders) {
+      int shiftNumber = header.shiftNumber;
+      if (!groupedShiftHeadersMap.containsKey(shiftNumber)) {
+        groupedShiftHeadersMap[shiftNumber] = const Tuple2(null, null);
+      }
+      if (header.isStartHeader) {
+        groupedShiftHeadersMap[shiftNumber] =
+            Tuple2(header, groupedShiftHeadersMap[shiftNumber]!.item2);
+      } else {
+        groupedShiftHeadersMap[shiftNumber] =
+            Tuple2(groupedShiftHeadersMap[shiftNumber]!.item1, header);
+      }
+    }
+
+    List<CellError> errors = [];
+    List<CellWarning> warnings = [];
+    // check if the start time is before the end time
+    for (int key in groupedShiftHeadersMap.keys) {
+      startEndTimesTuple tuple = groupedShiftHeadersMap[key]!;
+      TimeHeaderName? startTimeHeader = tuple.item1;
+      TimeHeaderName? endTimeHeader = tuple.item2;
+      if (startTimeHeader == null) {
+        errors.add(CellError('Start time header not found for shift $key',
+            CellIndex.indexByString('A1')));
+        continue;
+      }
+      if (endTimeHeader == null) {
+        errors.add(CellError('End time header not found for shift $key',
+            CellIndex.indexByString('A1')));
+        continue;
+      }
+
+      var endColumnIndex = rowHeaderCellIndexMap.findHeader(endTimeHeader)!;
+      List<Data?> endColumn =
+          selectColumn(rowIndex: endColumnIndex, sheet: sheet2);
+
+      List<ValidatorFunction> startEndValidators = [
+        (CellIndex c, List<Data?> d, String name) => compareStartEndTimes(
+            c, d, name,
+            endColumn: endColumn, endFieldName: endTimeHeader.fieldName),
+      ];
+      shiftErrorsAndWarnings
+          .add(runValidator(startTimeHeader, startEndValidators));
+    }
+
+    shiftErrorsAndWarnings.add(Tuple2(errors, warnings));
 
     // showErrorsAndWarnings(nameErrorsAndWarnings, 'Name');
     // showErrorsAndWarnings(emailErrorsAndWarnings, 'Email/Phone');
