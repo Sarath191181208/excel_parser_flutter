@@ -99,7 +99,7 @@ class _MyHomePageState extends State<MyHomePage> {
     for (RowHeaderComparable header in headers) {
       CellIndex? index = map.findHeader(header);
       if (index == null) {
-        errors.add(CellError('Header "${header.fieldName}" not found',
+        errors.add(CellError('Header "${header.headerName}" not found',
             CellIndex.indexByString('A1')));
       }
     }
@@ -192,7 +192,7 @@ class _MyHomePageState extends State<MyHomePage> {
       List<ValidatorFunction> startEndValidators = [
         (CellIndex c, List<Data?> d, String name) => compareStartEndTimes(
             c, d, name,
-            endColumn: endColumn, endFieldName: endTimeHeader.fieldName),
+            endColumn: endColumn, endFieldName: endTimeHeader.headerName),
       ];
       shiftErrorsAndWarnings
           .add(runValidator(startTimeHeader, startEndValidators));

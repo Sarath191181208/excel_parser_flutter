@@ -48,14 +48,14 @@ class CellNameAndIndexMap {
 
 abstract class RowHeaderComparable {
   bool containsRowHeader(String header);
-  String get fieldName;
+  String get headerName;
 }
 
 class HeaderName implements RowHeaderComparable {
   @override
-  final String fieldName;
+  final String headerName;
   final List<String> headers = [];
-  HeaderName(this.fieldName, List<String> headers) {
+  HeaderName(this.headerName, List<String> headers) {
     this.headers.addAll(headers.map(((e) => e.toLowerCase().trim())));
   }
 
@@ -67,31 +67,31 @@ class HeaderName implements RowHeaderComparable {
 
 class TimeHeaderName implements RowHeaderComparable {
   @override
-  final String fieldName;
+  final String headerName;
 
-  TimeHeaderName(this.fieldName) {
+  TimeHeaderName(this.headerName) {
     // check if the header is of format Shift{1-20} [start|end]
     RegExp regExp = RegExp(r"shift(\d{1,4}) (start|end)");
-    var match = regExp.firstMatch(fieldName.toLowerCase());
+    var match = regExp.firstMatch(headerName.toLowerCase());
     if (match == null) {
       throw Exception(
-          "Invalid header name: $fieldName. Expected format: Shift{1-20} [start|end]");
+          "Invalid header name: $headerName. Expected format: Shift{1-20} [start|end]");
     }
   }
 
-  bool get isStartHeader => fieldName.toLowerCase().contains("start");
+  bool get isStartHeader => headerName.toLowerCase().contains("start");
   int get shiftNumber {
     RegExp regExp = RegExp(r"shift(\d{1,4}) (start|end)");
-    var match = regExp.firstMatch(fieldName.toLowerCase());
+    var match = regExp.firstMatch(headerName.toLowerCase());
     if (match == null) {
       throw Exception(
-          "Invalid header name: $fieldName. Expected format: Shift{1-20} [start|end]");
+          "Invalid header name: $headerName. Expected format: Shift{1-20} [start|end]");
     }
     return int.parse(match.group(1)!);
   }
 
   @override
   bool containsRowHeader(String header) {
-    return header.toLowerCase() == fieldName.toLowerCase();
+    return header.toLowerCase() == headerName.toLowerCase();
   }
 }

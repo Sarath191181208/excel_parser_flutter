@@ -47,7 +47,7 @@ CellErrorsWarnings applyValidators(RowHeaderComparable header, Sheet sheet,
     List<Data?> headerColumn =
         selectColumn(rowIndex: headerIndex, sheet: sheet);
     CellErrorsWarnings result =
-        validator(headerIndex, headerColumn, header.fieldName);
+        validator(headerIndex, headerColumn, header.headerName);
     errors.addAll(result.item1);
     warnings.addAll(result.item2);
   }
